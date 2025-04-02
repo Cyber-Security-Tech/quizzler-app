@@ -137,9 +137,15 @@ class QuizInterface:
             q_text = self.quiz.next_question()
             self.canvas.itemconfig(self.question_text, text=q_text)
         else:
-            self.canvas.itemconfig(self.question_text, text="You’ve reached the end of the quiz.")
-            self.true_button.config(state="disabled")
-            self.false_button.config(state="disabled")
+            self.show_final_screen()
+
+    def show_final_screen(self):
+        self.clear_window()
+        final_score_text = f"You scored {self.quiz.score} out of {len(self.quiz.question_list)}!"
+        Label(self.window, text=final_score_text, fg="white", bg=THEME_COLOR, font=("Arial", 16, "bold")).pack(pady=40)
+
+        Button(self.window, text="Restart Quiz", width=15, command=self.setup_start_screen).pack(pady=10)
+        Button(self.window, text="Quit", width=15, command=self.window.quit).pack(pady=5)
 
     def true_pressed(self):
         self.give_feedback(self.quiz.check_answer("True"))
