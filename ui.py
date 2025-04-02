@@ -37,6 +37,10 @@ class QuizInterface:
         self.question_text = None
         self.difficulty_buttons = {}
 
+        self.progress_canvas = None
+        self.progress_fill = None
+        self.progress_label = None
+
         self.selected_difficulty = StringVar(value="easy")
         self.selected_category = StringVar(value="General Knowledge")
 
@@ -102,6 +106,13 @@ class QuizInterface:
         self.score_label = Label(text="Score: 0", fg="white", bg=THEME_COLOR, font=("Arial", 12, "bold"))
         self.score_label.grid(row=0, column=1)
 
+        self.progress_label = Label(text="Progress: 0 / 10", fg="white", bg=THEME_COLOR, font=("Arial", 10, "bold"))
+        self.progress_label.grid(row=1, column=0, columnspan=2)
+
+        self.progress_canvas = Canvas(width=300, height=20, bg="white", highlightthickness=0)
+        self.progress_fill = self.progress_canvas.create_rectangle(0, 0, 0, 20, fill="#4CAF50", width=0)
+        self.progress_canvas.grid(row=2, column=0, columnspan=2, pady=(0, 20))
+
         self.canvas = Canvas(width=300, height=250, bg="white")
         self.question_text = self.canvas.create_text(
             150,
@@ -111,7 +122,7 @@ class QuizInterface:
             fill=THEME_COLOR,
             font=("Arial", 16, "italic")
         )
-        self.canvas.grid(row=1, column=0, columnspan=2, pady=30)
+        self.canvas.grid(row=3, column=0, columnspan=2, pady=30)
 
         true_img_raw = Image.open("assets/true.png").resize((70, 70))
         false_img_raw = Image.open("assets/false.png").resize((70, 70))
@@ -120,11 +131,11 @@ class QuizInterface:
 
         self.true_button = Button(image=true_img, highlightthickness=0, command=self.true_pressed)
         self.true_button.image = true_img
-        self.true_button.grid(row=2, column=0)
+        self.true_button.grid(row=4, column=0)
 
         self.false_button = Button(image=false_img, highlightthickness=0, command=self.false_pressed)
         self.false_button.image = false_img
-        self.false_button.grid(row=2, column=1)
+        self.false_button.grid(row=4, column=1)
 
     def clear_window(self):
         for widget in self.window.winfo_children():
@@ -136,8 +147,17 @@ class QuizInterface:
             self.score_label.config(text=f"Score: {self.quiz.score}")
             q_text = self.quiz.next_question()
             self.canvas.itemconfig(self.question_text, text=q_text)
+            self.update_progress_bar()
         else:
             self.show_final_screen()
+
+    def update_progress_bar(self):
+        current = self.quiz.question_number
+        total = len(self.quiz.question_list)
+
+        self.progress_label.config(text=f"Progress: {current} / {total}")
+        bar_width = int((current / total) * 300)
+        self.progress_canvas.coords(self.progress_fill, 0, 0, bar_width, 20)
 
     def show_final_screen(self):
         self.clear_window()
