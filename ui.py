@@ -68,7 +68,7 @@ class QuizInterface:
         category_dropdown = ttk.Combobox(self.window, values=list(CATEGORY_MAP.keys()), textvariable=self.selected_category, state="readonly")
         category_dropdown.pack(pady=5)
 
-        Button(self.window, text="Start Quiz", width=20, command=self.start_quiz).pack(pady=20)
+        Button(self.window, text="Start Quiz", width=20, command=self.start_quiz, cursor="hand2").pack(pady=20)
 
     def select_difficulty(self, level):
         self.selected_difficulty.set(level)
@@ -129,13 +129,20 @@ class QuizInterface:
         true_img = ImageTk.PhotoImage(true_img_raw)
         false_img = ImageTk.PhotoImage(false_img_raw)
 
-        self.true_button = Button(image=true_img, highlightthickness=0, command=self.true_pressed)
+        self.true_button = Button(image=true_img, highlightthickness=0, command=self.true_pressed, cursor="hand2")
         self.true_button.image = true_img
         self.true_button.grid(row=4, column=0)
 
-        self.false_button = Button(image=false_img, highlightthickness=0, command=self.false_pressed)
+        self.false_button = Button(image=false_img, highlightthickness=0, command=self.false_pressed, cursor="hand2")
         self.false_button.image = false_img
         self.false_button.grid(row=4, column=1)
+
+        # Hover Effects
+        self.true_button.bind("<Enter>", lambda e: self.true_button.config(bg="#e0ffe0"))
+        self.true_button.bind("<Leave>", lambda e: self.true_button.config(bg="SystemButtonFace"))
+
+        self.false_button.bind("<Enter>", lambda e: self.false_button.config(bg="#ffe0e0"))
+        self.false_button.bind("<Leave>", lambda e: self.false_button.config(bg="SystemButtonFace"))
 
     def clear_window(self):
         for widget in self.window.winfo_children():
@@ -146,10 +153,21 @@ class QuizInterface:
         if self.quiz.still_has_questions():
             self.score_label.config(text=f"Score: {self.quiz.score}")
             q_text = self.quiz.next_question()
-            self.canvas.itemconfig(self.question_text, text=q_text)
+            self.animate_question(q_text)
             self.update_progress_bar()
         else:
             self.show_final_screen()
+
+    def animate_question(self, text, index=0):
+        if index == 0:
+            self.canvas.itemconfig(self.question_text, text="")  # Clear before typing
+
+        if index < len(text):
+            current = self.canvas.itemcget(self.question_text, "text")
+            self.canvas.itemconfig(self.question_text, text=current + text[index])
+            self.window.after(10, lambda: self.animate_question(text, index + 1))
+        else:
+            return
 
     def update_progress_bar(self):
         current = self.quiz.question_number
@@ -164,8 +182,8 @@ class QuizInterface:
         final_score_text = f"You scored {self.quiz.score} out of {len(self.quiz.question_list)}!"
         Label(self.window, text=final_score_text, fg="white", bg=THEME_COLOR, font=("Arial", 16, "bold")).pack(pady=40)
 
-        Button(self.window, text="Restart Quiz", width=15, command=self.setup_start_screen).pack(pady=10)
-        Button(self.window, text="Quit", width=15, command=self.window.quit).pack(pady=5)
+        Button(self.window, text="Restart Quiz", width=15, command=self.setup_start_screen, cursor="hand2").pack(pady=10)
+        Button(self.window, text="Quit", width=15, command=self.window.quit, cursor="hand2").pack(pady=5)
 
     def true_pressed(self):
         self.give_feedback(self.quiz.check_answer("True"))
@@ -180,4 +198,4 @@ class QuizInterface:
     def show_error(self, message):
         self.clear_window()
         Label(self.window, text=message, fg="white", bg=THEME_COLOR, wraplength=280, font=("Arial", 14, "bold")).pack(pady=30)
-        Button(self.window, text="Back to Start", command=self.setup_start_screen).pack(pady=10)
+        Button(self.window, text="Back to Start", command=self.setup_start_screen, cursor="hand2").pack(pady=10)
