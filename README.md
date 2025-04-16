@@ -11,6 +11,12 @@ Quizzler is an interactive True/False quiz game that pulls real trivia questions
 
 ---
 
+## 🎥 Demo
+
+![Quizzler App Demo](media/demo/demo.gif)
+
+---
+
 ## ✅ Features
 
 ### 📌 Core Functionality
@@ -47,19 +53,19 @@ Quizzler is an interactive True/False quiz game that pulls real trivia questions
 
 ---
 
-## 💡 Why This Project Matters
+## 🖼 Screenshots
 
-This app demonstrates:
+| Start Screen | Question Loaded |
+|--------------|------------------|
+| ![Start](media/screenshots/start_screen.png) | ![Question](media/screenshots/question_loaded.png) |
 
-- ✅ API integration
-- ✅ Error handling
-- ✅ OOP practices
-- ✅ UI/UX thinking
-- ✅ Clean, readable, and scalable code
+| Correct Feedback | Incorrect Feedback | Final Score |
+|------------------|--------------------|-------------|
+| ![Green](media/screenshots/correct_feedback.png) | ![Red](media/screenshots/incorrect_feedback.png) | ![Score](media/screenshots/final_score.png) |
 
 ---
 
-## 🚀 How to Run
+## 🚀 How to Run Locally
 
 1. Clone the repo:
 ```bash
@@ -79,37 +85,52 @@ python main.py
 
 ---
 
-## 🧾 Requirements
+## 🧠 What I Learned
+
+- Integrating third-party APIs and parsing JSON responses
+- Applying object-oriented principles to manage UI, data, and logic
+- Improving UX with animations and hover interactions in `tkinter`
+- Designing scalable, modular Python apps
+
+---
+
+## 🛠 Tech Stack
 
 - Python 3.x
-- Modules:
-  - `requests`
-  - `Pillow`
-  - `tkinter` (comes preinstalled with Python)
+- `tkinter` – for GUI rendering
+- `requests` – for API communication
+- `Pillow` – for image handling
+- Open Trivia DB – trivia question data
 
 ---
 
-## 📂 File Structure
-
-```
-quizzler-app/
-│
-├── assets/                   # Button images (true.png, false.png)
-├── data/                     # Future: high_scores.json (if added)
-├── api_handler.py            # Handles Open Trivia API logic
-├── main.py                   # Entry point
-├── question_model.py         # Question data class
-├── quiz_brain.py             # Quiz logic and flow control
-├── ui.py                     # All GUI logic and visuals
-├── requirements.txt          # Pip dependencies
-└── README.md                 # You are here!
-```
-
----
-
-## 📌 Next Ideas (Not Yet Implemented)
+## 🚧 Future Improvements
 
 - 💾 Save high scores locally
 - 🌗 Add theme toggle (light/dark mode)
 - 📊 Add timer countdown
 - 📱 Make mobile-friendly with `customtkinter` or convert to web app with `Flask`
+
+---
+
+## 📂 Project Structure
+
+```
+quizzler-app/
+│
+├── assets/                   # Button images (true.png, false.png)
+├── media/
+│   ├── demo/                 # GIF demo
+│   └── screenshots/          # Static screenshots for README
+├── api_handler.py            # Handles Open Trivia API logic
+├── main.py                   # Entry point
+├── question_model.py         # Question data class
+├── quiz_brain.py             # Quiz logic and flow control
+├── ui.py                     # All GUI logic and visuals
+├── utils.py                  # (Currently unused, placeholder for helpers)
+├── requirements.txt          # Pip dependencies
+├── .gitignore                # Ignore rules
+└── README.md                 # You are here!
+```
+
+---

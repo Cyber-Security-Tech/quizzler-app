@@ -1,6 +1,8 @@
 from tkinter import *
 from tkinter import ttk
 from PIL import Image, ImageTk
+from typing import Optional
+
 from question_model import Question
 from quiz_brain import QuizBrain
 from api_handler import get_questions
@@ -24,31 +26,47 @@ CATEGORY_MAP = {
 
 
 class QuizInterface:
-    def __init__(self):
+    """
+    Graphical user interface for the Quizzler App using Tkinter.
+
+    Features:
+    - Start screen with category and difficulty selection
+    - Quiz screen with animated questions and image-based answer buttons
+    - Progress bar and score tracker
+    - Final result screen with restart/quit options
+    - Error handling for API issues
+    """
+
+    def __init__(self) -> None:
         self.window = Tk()
         self.window.title("Quizzler")
         self.window.config(padx=20, pady=20, bg=THEME_COLOR)
 
-        self.quiz = None
-        self.score_label = None
-        self.canvas = None
-        self.true_button = None
-        self.false_button = None
-        self.question_text = None
-        self.difficulty_buttons = {}
+        # Quiz logic and state
+        self.quiz: Optional[QuizBrain] = None
 
-        self.progress_canvas = None
-        self.progress_fill = None
-        self.progress_label = None
+        # UI elements
+        self.score_label: Optional[Label] = None
+        self.canvas: Optional[Canvas] = None
+        self.true_button: Optional[Button] = None
+        self.false_button: Optional[Button] = None
+        self.question_text: Optional[int] = None
+        self.difficulty_buttons: dict[str, Button] = {}
 
+        # Progress UI
+        self.progress_canvas: Optional[Canvas] = None
+        self.progress_fill: Optional[int] = None
+        self.progress_label: Optional[Label] = None
+
+        # User selections
         self.selected_difficulty = StringVar(value="easy")
         self.selected_category = StringVar(value="General Knowledge")
 
         self.setup_start_screen()
-
         self.window.mainloop()
 
-    def setup_start_screen(self):
+    def setup_start_screen(self) -> None:
+        """Initial start menu UI with difficulty and category options."""
         self.clear_window()
 
         Label(self.window, text="Select Difficulty:", fg="white", bg=THEME_COLOR, font=("Arial", 14, "bold")).pack(pady=10)
@@ -70,25 +88,28 @@ class QuizInterface:
 
         Button(self.window, text="Start Quiz", width=20, command=self.start_quiz, cursor="hand2").pack(pady=20)
 
-    def select_difficulty(self, level):
+    def select_difficulty(self, level: str) -> None:
+        """Set the selected difficulty and update button styles."""
         self.selected_difficulty.set(level)
         self.highlight_selected_difficulty(level)
 
-    def highlight_selected_difficulty(self, selected):
+    def highlight_selected_difficulty(self, selected: str) -> None:
+        """Highlight the selected difficulty button."""
         for level, button in self.difficulty_buttons.items():
             if level == selected:
                 button.config(bg="white", fg=THEME_COLOR, relief=SUNKEN)
             else:
                 button.config(bg="SystemButtonFace", fg="black", relief=RAISED)
 
-    def start_quiz(self):
+    def start_quiz(self) -> None:
+        """Fetch questions and launch the quiz interface."""
         category_id = CATEGORY_MAP.get(self.selected_category.get(), 9)
         difficulty = self.selected_difficulty.get()
 
         try:
             question_data = get_questions(amount=10, difficulty=difficulty, category=category_id)
 
-            if not question_data or len(question_data) == 0:
+            if not question_data:
                 self.show_error("No questions available or API error occurred.\nPlease try a different combination or check your connection.")
                 return
 
@@ -100,7 +121,8 @@ class QuizInterface:
         except Exception:
             self.show_error("An unexpected error occurred.\nPlease try again.")
 
-    def setup_quiz_ui(self):
+    def setup_quiz_ui(self) -> None:
+        """Render the quiz UI: canvas, buttons, progress bar, etc."""
         self.clear_window()
 
         self.score_label = Label(text="Score: 0", fg="white", bg=THEME_COLOR, font=("Arial", 12, "bold"))
@@ -144,11 +166,13 @@ class QuizInterface:
         self.false_button.bind("<Enter>", lambda e: self.false_button.config(bg="#ffe0e0"))
         self.false_button.bind("<Leave>", lambda e: self.false_button.config(bg="SystemButtonFace"))
 
-    def clear_window(self):
+    def clear_window(self) -> None:
+        """Clear all widgets from the window."""
         for widget in self.window.winfo_children():
             widget.destroy()
 
-    def get_next_question(self):
+    def get_next_question(self) -> None:
+        """Display the next quiz question or end the quiz if finished."""
         self.canvas.config(bg="white")
         if self.quiz.still_has_questions():
             self.score_label.config(text=f"Score: {self.quiz.score}")
@@ -158,18 +182,18 @@ class QuizInterface:
         else:
             self.show_final_screen()
 
-    def animate_question(self, text, index=0):
+    def animate_question(self, text: str, index: int = 0) -> None:
+        """Simulate a typing animation effect for each question."""
         if index == 0:
-            self.canvas.itemconfig(self.question_text, text="")  # Clear before typing
+            self.canvas.itemconfig(self.question_text, text="")
 
         if index < len(text):
             current = self.canvas.itemcget(self.question_text, "text")
             self.canvas.itemconfig(self.question_text, text=current + text[index])
             self.window.after(10, lambda: self.animate_question(text, index + 1))
-        else:
-            return
 
-    def update_progress_bar(self):
+    def update_progress_bar(self) -> None:
+        """Update the progress bar and label based on current question number."""
         current = self.quiz.question_number
         total = len(self.quiz.question_list)
 
@@ -177,7 +201,8 @@ class QuizInterface:
         bar_width = int((current / total) * 300)
         self.progress_canvas.coords(self.progress_fill, 0, 0, bar_width, 20)
 
-    def show_final_screen(self):
+    def show_final_screen(self) -> None:
+        """Display the final score and end-of-quiz options."""
         self.clear_window()
         final_score_text = f"You scored {self.quiz.score} out of {len(self.quiz.question_list)}!"
         Label(self.window, text=final_score_text, fg="white", bg=THEME_COLOR, font=("Arial", 16, "bold")).pack(pady=40)
@@ -185,17 +210,21 @@ class QuizInterface:
         Button(self.window, text="Restart Quiz", width=15, command=self.setup_start_screen, cursor="hand2").pack(pady=10)
         Button(self.window, text="Quit", width=15, command=self.window.quit, cursor="hand2").pack(pady=5)
 
-    def true_pressed(self):
+    def true_pressed(self) -> None:
+        """Handle when the user clicks the True button."""
         self.give_feedback(self.quiz.check_answer("True"))
 
-    def false_pressed(self):
+    def false_pressed(self) -> None:
+        """Handle when the user clicks the False button."""
         self.give_feedback(self.quiz.check_answer("False"))
 
-    def give_feedback(self, is_right):
+    def give_feedback(self, is_right: bool) -> None:
+        """Show feedback color based on whether the answer was correct."""
         self.canvas.config(bg="green" if is_right else "red")
         self.window.after(1000, self.get_next_question)
 
-    def show_error(self, message):
+    def show_error(self, message: str) -> None:
+        """Show an error screen if questions can't be loaded."""
         self.clear_window()
         Label(self.window, text=message, fg="white", bg=THEME_COLOR, wraplength=280, font=("Arial", 14, "bold")).pack(pady=30)
         Button(self.window, text="Back to Start", command=self.setup_start_screen, cursor="hand2").pack(pady=10)
